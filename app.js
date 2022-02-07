@@ -44,6 +44,9 @@ mongoose.connection.on("error", (err) => {
   );
   process.exit();
 });
+mongoose.connection.on("connected", () => {
+  console.log("MongoDB connected");
+});
 
 /**
  * Express configuration.

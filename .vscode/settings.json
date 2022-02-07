@@ -6,10 +6,13 @@
   "eslint.nodePath": ".yarn/sdks",
   "prettier.prettierPath": ".yarn/sdks/prettier/index.js",
   "cSpell.words": [
+    "enidaan",
     "fontawesome",
     "fortawesome",
+    "Kaggle",
     "ladjs",
     "lusca",
+    "Nidaan",
     "stylelint"
   ]
 }
