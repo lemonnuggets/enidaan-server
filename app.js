@@ -165,11 +165,10 @@ if (process.env.NODE_ENV === "development") {
  */
 app.listen(app.get("port"), () => {
   console.log(
-    "App is running at http://localhost:%d in %s mode",
-    app.get("port"),
-    app.get("env")
+    `App is running at http://localhost:${app.get("port")} in ` +
+      `${app.get("env")} mode`
   );
-  console.log("  Press CTRL-C to stop\n");
+  console.log("\tPress CTRL-C to stop\n");
 });
 
 module.exports = app;
