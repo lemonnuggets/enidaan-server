@@ -1,6 +1,6 @@
-const passport = require("passport");
 // const _ = require("lodash");
 const validator = require("validator");
+const passport = require("passport");
 const User = require("../models/User");
 
 /**
@@ -21,6 +21,7 @@ exports.getLogin = (req, res) => {
  * Sign in using email and password.
  */
 exports.postLogin = (req, res, next) => {
+  console.log("postLogin");
   const validationErrors = [];
   if (!validator.isEmail(req.body.email))
     validationErrors.push({ msg: "Please enter a valid email address." });
@@ -29,28 +30,43 @@ exports.postLogin = (req, res, next) => {
 
   if (validationErrors.length) {
     req.flash("errors", validationErrors);
-    return res.redirect("/login");
+    return res.status(500).json({
+      status: "error",
+      message: "Validation errors",
+      errors: validationErrors,
+    });
   }
+  console.log("no validation errors", req.body.email, req.body.password);
+
   req.body.email = validator.normalizeEmail(req.body.email, {
     gmail_remove_dots: false,
   });
 
-  passport.authenticate("local", (err, user, info) => {
+  const authenticate = passport.authenticate("local", (err, user, info) => {
     if (err) {
       return next(err);
     }
     if (!user) {
-      req.flash("errors", info);
-      return res.redirect("/login");
+      req.flash("errors", info.message);
+      return res.status(500).json({
+        status: "error",
+        message: "Validation errors",
+        errors: info.message,
+      });
     }
     req.logIn(user, (err) => {
+      console.log("log in", user, err);
       if (err) {
         return next(err);
       }
       req.flash("success", { msg: "Success! You are logged in." });
-      res.redirect(req.session.returnTo || "/");
+      res.status(200).json({
+        status: "success",
+        message: "Success! You are logged in.",
+      });
     });
-  })(req, res, next);
+  });
+  authenticate(req, res, next);
 };
 
 /**
@@ -68,44 +84,55 @@ exports.logout = (req, res) => {
 };
 
 /**
- * GET /signup
- * Signup page.
- */
-exports.getSignup = (req, res) => {
-  if (req.user) {
-    return res.redirect("/");
-  }
-  res.render("account/signup", {
-    title: "Create Account",
-  });
-};
-
-/**
  * POST /signup
  * Create a new local account.
  */
 exports.postSignup = (req, res, next) => {
   const validationErrors = [];
-  if (!validator.isEmail(req.body.email))
+  if (typeof req.body.email !== "string")
     validationErrors.push({ msg: "Please enter a valid email address." });
-  if (!validator.isLength(req.body.password, { min: 8 }))
-    validationErrors.push({
-      msg: "Password must be at least 8 characters long",
-    });
-  if (req.body.password !== req.body.confirmPassword)
-    validationErrors.push({ msg: "Passwords do not match" });
+  if (typeof req.body.password !== "string")
+    validationErrors.push({ msg: "Please enter a valid password." });
+  if (typeof req.body.confirmPassword !== "string")
+    validationErrors.push({ msg: "Please confirm password." });
+  if (typeof req.body.name !== "string")
+    validationErrors.push({ msg: "Invalid name" });
+  if (
+    typeof req.body.gender !== "string" ||
+    (req.body.gender !== "M" && req.body.gender !== "F")
+  )
+    validationErrors.push({ msg: "Invalid Gender" });
+
+  if (validationErrors.length === 0) {
+    if (!validator.isEmail(req.body.email))
+      validationErrors.push({ msg: "Please enter a valid email address." });
+    if (!validator.isLength(req.body.password, { min: 8 }))
+      validationErrors.push({
+        msg: "Password must be at least 8 characters long",
+      });
+    if (req.body.password !== req.body.confirmPassword)
+      validationErrors.push({ msg: "Passwords do not match" });
+  }
 
   if (validationErrors.length) {
     req.flash("errors", validationErrors);
-    return res.redirect("/signup");
+    return res.status(500).json({
+      status: "error",
+      message: "Validation errors",
+      errors: validationErrors,
+    });
   }
   req.body.email = validator.normalizeEmail(req.body.email, {
     gmail_remove_dots: false,
   });
-
   const user = new User({
     email: req.body.email,
     password: req.body.password,
+    profile: {
+      name: req.body.name,
+      location: req.body.location,
+      gender: req.body.gender,
+    },
   });
 
   User.findOne({ email: req.body.email }, (err, existingUser) => {
@@ -116,7 +143,10 @@ exports.postSignup = (req, res, next) => {
       req.flash("errors", {
         msg: "Account with that email address already exists.",
       });
-      return res.redirect("/signup");
+      return res.status(500).json({
+        status: "error",
+        message: "Account with that email address already exists.",
+      });
     }
     user.save((err) => {
       if (err) {
@@ -126,7 +156,10 @@ exports.postSignup = (req, res, next) => {
         if (err) {
           return next(err);
         }
-        res.redirect("/");
+        res.status(200).json({
+          status: "success",
+          message: "Success! You are logged in.",
+        });
       });
     });
   });
@@ -153,7 +186,11 @@ exports.postUpdateProfile = (req, res, next) => {
 
   if (validationErrors.length) {
     req.flash("errors", validationErrors);
-    return res.redirect("/account");
+    return res.status(500).json({
+      status: "error",
+      message: "Validation errors",
+      errors: validationErrors,
+    });
   }
   req.body.email = validator.normalizeEmail(req.body.email, {
     gmail_remove_dots: false,
@@ -167,18 +204,33 @@ exports.postUpdateProfile = (req, res, next) => {
     user.email = req.body.email || "";
     user.profile.name = req.body.name || "";
     user.profile.location = req.body.location || "";
+    user.profile.gender = req.body.gender || "";
     user.save((err) => {
       if (err) {
         if (err.code === 11000) {
           req.flash("errors", {
             msg: "The email address you have entered is already associated with an account.",
           });
-          return res.redirect("/account");
+          return res.status(500).json({
+            status: "error",
+            message:
+              "The email address you have entered is already associated with an account.",
+          });
         }
         return next(err);
       }
       req.flash("success", { msg: "Profile information has been updated." });
-      res.redirect("/account");
+      res.status(200).json({
+        status: "success",
+        message: "Profile information has been updated.",
+        user: {
+          _id: user._id,
+          email: user.email,
+          name: user.profile.name,
+          location: user.profile.location,
+          gender: user.profile.gender,
+        },
+      });
     });
   });
 };
@@ -198,7 +250,11 @@ exports.postUpdatePassword = (req, res, next) => {
 
   if (validationErrors.length) {
     req.flash("errors", validationErrors);
-    return res.redirect("/account");
+    return res.status(500).json({
+      status: "error",
+      message: "Validation errors",
+      errors: validationErrors,
+    });
   }
 
   User.findById(req.user.id, (err, user) => {
@@ -211,7 +267,10 @@ exports.postUpdatePassword = (req, res, next) => {
         return next(err);
       }
       req.flash("success", { msg: "Password has been changed." });
-      res.redirect("/account");
+      res.status(200).json({
+        status: "success",
+        message: "Password has been changed.",
+      });
     });
   });
 };
@@ -227,7 +286,10 @@ exports.postDeleteAccount = (req, res, next) => {
     }
     req.logout();
     req.flash("info", { msg: "Your account has been deleted." });
-    res.redirect("/");
+    res.status(200).json({
+      status: "success",
+      message: "Your account has been deleted.",
+    });
   });
 };
 

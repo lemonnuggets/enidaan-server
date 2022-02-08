@@ -48,12 +48,12 @@ textarea {
 .navbar-nav img {
   width: 30px;
   min-height: 30px;
-  margin: -15px 15px -15px;
+  margin: -15px 15px;
 }
 
 .navbar{
-  padding-top: 0px;
-  padding-bottom: 0px;
+  padding-top: 0;
+  padding-bottom: 0;
   margin-bottom: 20px;
   display: block;
 }
@@ -81,9 +81,9 @@ textarea {
 
 // button raised definition
 // this button uses gradient for the background
-$btn-raised-color: rgb(51, 51, 51);
+$btn-raised-color: rgb(51 51 51);
 $btn-raised-background: #f8f8f8;
-$btn-raised-border: rgb(204, 204, 204);
+$btn-raised-border: rgb(204 204 204);
 $enable-gradients: true;
 
 .btn-raised {
@@ -98,6 +98,7 @@ $enable-gradients: true;
 * Solves Bootstrap 4 issue
 * https://github.com/twbs/bootstrap/issues/25654
 */
+
 /* Styles in sm disposition and up */
 @media (min-width: 576px) and (max-width: 767px) {
   /* Solves bs4 bug */

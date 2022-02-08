@@ -38,6 +38,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["bcrypt", "npm:5.0.1"],
             ["body-parser", "npm:1.19.1"],
             ["chalk", "npm:5.0.0"],
+            ["connect-flash", "npm:0.1.1"],
             ["connect-mongo", "virtual:48fd9d653646a991d0eda5ffe92778b72de446c151643ca5c3964e62f24bed64d28e19b09ae1edf82cd4ab484e9e16d2c4b4953045a3524fb9431546d36f4563#npm:4.6.0"],
             ["dotenv", "npm:16.0.0"],
             ["errorhandler", "npm:1.5.1"],
@@ -50,6 +51,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-plugin-node", "virtual:48fd9d653646a991d0eda5ffe92778b72de446c151643ca5c3964e62f24bed64d28e19b09ae1edf82cd4ab484e9e16d2c4b4953045a3524fb9431546d36f4563#npm:11.1.0"],
             ["eslint-plugin-prettier", "virtual:48fd9d653646a991d0eda5ffe92778b72de446c151643ca5c3964e62f24bed64d28e19b09ae1edf82cd4ab484e9e16d2c4b4953045a3524fb9431546d36f4563#npm:4.0.0"],
             ["express", "npm:4.17.2"],
+            ["express-flash", "npm:0.0.2"],
             ["express-session", "npm:1.17.2"],
             ["husky", "npm:7.0.4"],
             ["lint-staged", "npm:12.3.3"],
@@ -1282,6 +1284,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["connect-flash", [
+        ["npm:0.1.1", {
+          "packageLocation": "./.yarn/cache/connect-flash-npm-0.1.1-cd59274faf-243e103ec1.zip/node_modules/connect-flash/",
+          "packageDependencies": [
+            ["connect-flash", "npm:0.1.1"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["connect-mongo", [
         ["npm:4.6.0", {
           "packageLocation": "./.yarn/cache/connect-mongo-npm-4.6.0-771e465b45-be95b40bf5.zip/node_modules/connect-mongo/",
@@ -2390,6 +2401,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["type-is", "npm:1.6.18"],
             ["utils-merge", "npm:1.0.1"],
             ["vary", "npm:1.1.2"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["express-flash", [
+        ["npm:0.0.2", {
+          "packageLocation": "./.yarn/cache/express-flash-npm-0.0.2-bf6dd4c63e-2979158276.zip/node_modules/express-flash/",
+          "packageDependencies": [
+            ["express-flash", "npm:0.0.2"],
+            ["connect-flash", "npm:0.1.1"]
           ],
           "linkType": "HARD",
         }]
@@ -5696,6 +5717,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["bcrypt", "npm:5.0.1"],
             ["body-parser", "npm:1.19.1"],
             ["chalk", "npm:5.0.0"],
+            ["connect-flash", "npm:0.1.1"],
             ["connect-mongo", "virtual:48fd9d653646a991d0eda5ffe92778b72de446c151643ca5c3964e62f24bed64d28e19b09ae1edf82cd4ab484e9e16d2c4b4953045a3524fb9431546d36f4563#npm:4.6.0"],
             ["dotenv", "npm:16.0.0"],
             ["errorhandler", "npm:1.5.1"],
@@ -5708,6 +5730,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-plugin-node", "virtual:48fd9d653646a991d0eda5ffe92778b72de446c151643ca5c3964e62f24bed64d28e19b09ae1edf82cd4ab484e9e16d2c4b4953045a3524fb9431546d36f4563#npm:11.1.0"],
             ["eslint-plugin-prettier", "virtual:48fd9d653646a991d0eda5ffe92778b72de446c151643ca5c3964e62f24bed64d28e19b09ae1edf82cd4ab484e9e16d2c4b4953045a3524fb9431546d36f4563#npm:4.0.0"],
             ["express", "npm:4.17.2"],
+            ["express-flash", "npm:0.0.2"],
             ["express-session", "npm:1.17.2"],
             ["husky", "npm:7.0.4"],
             ["lint-staged", "npm:12.3.3"],

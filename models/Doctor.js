@@ -2,27 +2,32 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema(
+const doctorSchema = new mongoose.Schema(
   {
     email: { type: String, unique: true },
     password: String,
     profile: {
-      name: {
-        type: String,
-        trim: true,
-        required: true,
-      },
+      name: String,
       gender: {
         type: String,
-        trim: true,
         validate: (gender) => {
           if (gender === "M" || gender === "F") return true;
           return false;
         },
-        required: true,
       },
       location: String,
+      registrationNumber: String,
+      bio: {
+        type: String,
+        default: "",
+      },
     },
+    dateOfJoining: Date,
+    reportCount: {
+      type: Number,
+      default: 0,
+    },
+    rating: Number,
   },
   { timestamps: true }
 );
@@ -30,29 +35,29 @@ const userSchema = new mongoose.Schema(
 /**
  * Password hash middleware.
  */
-userSchema.pre("save", function save(next) {
-  const user = this;
-  if (!user.isModified("password")) {
+doctorSchema.pre("save", function save(next) {
+  const doctor = this;
+  if (!doctor.isModified("password")) {
     return next();
   }
   bcrypt.genSalt(10, (err, salt) => {
     if (err) {
       return next(err);
     }
-    bcrypt.hash(user.password, salt, (err, hash) => {
+    bcrypt.hash(doctor.password, salt, (err, hash) => {
       if (err) {
         return next(err);
       }
-      user.password = hash;
+      doctor.password = hash;
       next();
     });
   });
 });
 
 /**
- * Helper method for validating user's password.
+ * Helper method for validating doctor's password.
  */
-userSchema.methods.comparePassword = function comparePassword(
+doctorSchema.methods.comparePassword = function comparePassword(
   candidatePassword,
   callback
 ) {
@@ -62,9 +67,9 @@ userSchema.methods.comparePassword = function comparePassword(
 };
 
 /**
- * Helper method for getting user's gravatar.
+ * Helper method for getting doctor's gravatar.
  */
-userSchema.methods.gravatar = function gravatar(size) {
+doctorSchema.methods.gravatar = function gravatar(size) {
   if (!size) {
     size = 200;
   }
@@ -75,6 +80,6 @@ userSchema.methods.gravatar = function gravatar(size) {
   return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
 };
 
-const User = mongoose.model("User", userSchema);
+const Doctor = mongoose.model("Doctor", doctorSchema);
 
-module.exports = User;
+module.exports = Doctor;

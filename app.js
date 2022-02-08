@@ -1,8 +1,8 @@
 const express = require("express");
 const session = require("express-session");
+const flash = require("connect-flash");
 const bodyParser = require("body-parser");
 const logger = require("morgan");
-const lusca = require("lusca");
 const errorHandler = require("errorhandler");
 const dotenv = require("dotenv");
 const MongoStore = require("connect-mongo");
@@ -14,20 +14,17 @@ const multer = require("multer");
 const upload = multer({ dest: path.join(__dirname, "uploads") });
 
 dotenv.config({ path: ".env" });
+/**
+ * Routes
+ */
+const userRoutes = require("./routes/user");
+const doctorRoutes = require("./routes/doctor");
 
 /**
- * Controllers (route handlers).
+ * Controllers.
  */
 const homeController = require("./controllers/home");
-const userController = require("./controllers/user");
 const apiController = require("./controllers/api");
-// const contactController = require("./controllers/contact");
-
-/**
- * API keys and Passport configuration.
- */
-const passportConfig = require("./config/passport");
-
 /**
  * Create Express server.
  */
@@ -56,6 +53,7 @@ app.set("port", process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080);
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 app.use(logger("dev"));
+app.use(flash());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
@@ -72,18 +70,8 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use((req, res, next) => {
-  if (req.path === "/api/upload") {
-    // Multer multipart/form-data handling needs to occur before the Lusca CSRF check.
-    next();
-  } else {
-    lusca.csrf()(req, res, next);
-  }
-});
-app.use(lusca.xframe("SAMEORIGIN"));
-app.use(lusca.xssProtection(true));
-app.disable("x-powered-by");
-app.use((req, res, next) => {
   res.locals.user = req.user;
+  console.log("res.locals.user", res.locals.user);
   next();
 });
 app.use((req, res, next) => {
@@ -95,11 +83,13 @@ app.use((req, res, next) => {
     !req.path.match(/^\/auth/) &&
     !req.path.match(/\./)
   ) {
+    console.log("req.path 1", req.path);
     req.session.returnTo = req.originalUrl;
   } else if (
     req.user &&
     (req.path === "/account" || req.path.match(/^\/api/))
   ) {
+    console.log("req.path 2", req.path);
     req.session.returnTo = req.originalUrl;
   }
   next();
@@ -116,39 +106,16 @@ app.get("/", homeController.index);
 app.get("/health", (req, res) => {
   res.send("OK");
 });
-// app.get("/login", userController.getLogin);
-app.post("/login", userController.postLogin);
-app.get("/logout", userController.logout);
-// app.get("/signup", userController.getSignup);
-app.post("/signup", userController.postSignup);
-app.get("/account", passportConfig.isAuthenticated, userController.getAccount);
-app.post(
-  "/account/profile",
-  passportConfig.isAuthenticated,
-  userController.postUpdateProfile
-);
-app.post(
-  "/account/password",
-  passportConfig.isAuthenticated,
-  userController.postUpdatePassword
-);
-app.post(
-  "/account/delete",
-  passportConfig.isAuthenticated,
-  userController.postDeleteAccount
-);
+
+app.use("/user", userRoutes);
+app.use("/doctor", doctorRoutes);
 
 /**
  * API examples routes.
  */
 app.get("/api", apiController.getApi);
-app.get("/api/upload", lusca({ csrf: true }), apiController.getFileUpload);
-app.post(
-  "/api/upload",
-  upload.single("myFile"),
-  lusca({ csrf: true }),
-  apiController.postFileUpload
-);
+app.get("/api/upload", apiController.getFileUpload);
+app.post("/api/upload", upload.single("myFile"), apiController.postFileUpload);
 
 /**
  * Error Handler.

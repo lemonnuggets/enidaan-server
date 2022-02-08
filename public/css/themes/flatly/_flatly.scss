@@ -1,4 +1,5 @@
 @import "node_modules/@ladjs/bootstrap-social/bootstrap-social.scss";
+
 // Flatly 4.3.1
 // Bootswatch
 
@@ -18,6 +19,7 @@ $web-font-path: "https://fonts.googleapis.com/css?family=Lato:400,700,400italic"
 
 .bg-dark {
   background-color: $success !important;
+
   &.navbar-dark .navbar-nav {
     .nav-link:focus,
     .nav-link:hover,
@@ -43,7 +45,6 @@ $web-font-path: "https://fonts.googleapis.com/css?family=Lato:400,700,400italic"
 // Tables ======================================================================
 
 .table {
-
   &-primary,
   &-secondary,
   &-success,
@@ -108,7 +109,6 @@ $web-font-path: "https://fonts.googleapis.com/css?family=Lato:400,700,400italic"
   }
 
   &-hover {
-
     .table-primary:hover {
       &, > th, > td {
         background-color: darken($primary, 5%);

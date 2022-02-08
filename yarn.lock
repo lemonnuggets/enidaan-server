@@ -1236,6 +1236,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"connect-flash@npm:0.1.x, connect-flash@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "connect-flash@npm:0.1.1"
+  checksum: 243e103ec1fdf056e33eccdb3ccad20abe50b3c6e9b8a2a6391708cb0fcc550d116cdc2208fedd04be338ac0a45f8e7af2300042d8190c4342658f738b4d4e3a
+  languageName: node
+  linkType: hard
+
 "connect-mongo@npm:^4.6.0":
   version: 4.6.0
   resolution: "connect-mongo@npm:4.6.0"
@@ -2114,6 +2121,15 @@ __metadata:
   dependencies:
     clone-regexp: ^2.1.0
   checksum: d98ee3e33f6c9001e80970e927fb9f16c6a121d5e250b2f4d6764d4157974f58cbe88613bbf073db05d5342677012002c5de956f4f0c32d10d092b6ff03a085c
+  languageName: node
+  linkType: hard
+
+"express-flash@npm:^0.0.2":
+  version: 0.0.2
+  resolution: "express-flash@npm:0.0.2"
+  dependencies:
+    connect-flash: 0.1.x
+  checksum: 2979158276da72fa5b68d6b370183ae756dcd7ffd038885ca099706c147cf0b4b1e25387ae36691eab2ed7211c07fad3450a3c31dc2c8b15c0f057043ed33bb5
   languageName: node
   linkType: hard
 
@@ -5361,6 +5377,7 @@ __metadata:
     bcrypt: ^5.0.1
     body-parser: ^1.19.1
     chalk: ^5.0.0
+    connect-flash: ^0.1.1
     connect-mongo: ^4.6.0
     dotenv: ^16.0.0
     errorhandler: ^1.5.1
@@ -5373,6 +5390,7 @@ __metadata:
     eslint-plugin-node: ^11.1.0
     eslint-plugin-prettier: ^4.0.0
     express: ^4.17.2
+    express-flash: ^0.0.2
     express-session: ^1.17.2
     husky: ^7.0.0
     lint-staged: ^12.3.3

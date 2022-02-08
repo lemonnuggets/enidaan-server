@@ -8,7 +8,6 @@ $gray-light: #e0e0e0;
 $gray: #737373;
 $gray-dark: #404040;
 $gray-darker: #121212;
-
 $brand-primary: #2ac5ee;
 $brand-success: #0f9d58;
 $brand-warning: #f4b400;
@@ -58,7 +57,7 @@ $state-danger-bg: $brand-danger;
 // -------------------------
 
 $navbar-height: 50px;
-$navbar-default-bg: rgba(255,255,255,0.95);
+$navbar-default-bg: rgb(255 255 255 / 95%);
 $navbar-default-link-color: $gray-darker;
 $navbar-default-link-active-color: $brand-primary;
 $navbar-default-link-active-bg: transparent;

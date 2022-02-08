@@ -3,15 +3,15 @@ const refresh = require("passport-oauth2-refresh");
 const { Strategy: LocalStrategy } = require("passport-local");
 const moment = require("moment");
 
-const User = require("../models/User");
+const Doctor = require("../models/Doctor");
 
-passport.serializeUser((user, done) => {
-  done(null, user.id);
+passport.serializeUser((doctor, done) => {
+  done(null, doctor.id);
 });
 
 passport.deserializeUser((id, done) => {
-  User.findById(id, (err, user) => {
-    done(err, user);
+  Doctor.findById(id, (err, doctor) => {
+    done(err, doctor);
   });
 });
 
@@ -19,25 +19,25 @@ passport.deserializeUser((id, done) => {
  * Sign in using Email and Password.
  */
 passport.use(
-  new LocalStrategy({ usernameField: "email" }, (email, password, done) => {
-    User.findOne({ email: email.toLowerCase() }, (err, user) => {
+  new LocalStrategy({ userNameField: "email" }, (email, password, done) => {
+    Doctor.findOne({ email: email.toLowerCase() }, (err, doctor) => {
       if (err) {
         return done(err);
       }
-      if (!user) {
+      if (!doctor) {
         return done(null, false, { msg: `Email ${email} not found.` });
       }
-      if (!user.password) {
+      if (!doctor.password) {
         return done(null, false, {
-          msg: "Your account was registered using a sign-in provider. To enable password login, sign in using a provider, and then set a password under your user profile.",
+          msg: "Your account was registered using a sign-in provider. To enable password login, sign in using a provider, and then set a password under your doctor profile.",
         });
       }
-      user.comparePassword(password, (err, isMatch) => {
+      doctor.comparePassword(password, (err, isMatch) => {
         if (err) {
           return done(err);
         }
         if (isMatch) {
-          return done(null, user);
+          return done(null, doctor);
         }
         return done(null, false, { msg: "Invalid email or password." });
       });
@@ -48,14 +48,14 @@ passport.use(
 /**
  * OAuth Strategy Overview
  *
- * - User is already logged in.
+ * - Doctor is already logged in.
  *   - Check if there is an existing account with a provider id.
  *     - If there is, return an error message. (Account merging not supported)
- *     - Else link new OAuth account with currently logged-in user.
- * - User is not logged in.
- *   - Check if it's a returning user.
- *     - If returning user, sign in and we are done.
- *     - Else check if there is an existing account with user's email.
+ *     - Else link new OAuth account with currently logged-in doctor.
+ * - Doctor is not logged in.
+ *   - Check if it's a returning doctor.
+ *     - If returning doctor, sign in and we are done.
+ *     - Else check if there is an existing account with doctor's email.
  *       - If there is, return an error message.
  *       - Else create a new account.
  */
@@ -67,7 +67,7 @@ exports.isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.redirect("/login");
+  res.redirect("/doctor/login");
 };
 
 /**
@@ -75,7 +75,7 @@ exports.isAuthenticated = (req, res, next) => {
  */
 exports.isAuthorized = (req, res, next) => {
   const provider = req.path.split("/")[2];
-  const token = req.user.tokens.find((token) => token.kind === provider);
+  const token = req.doctor.tokens.find((token) => token.kind === provider);
   if (token) {
     // Is there an access token expiration and access token expired?
     // Yes: Is there a refresh token?
@@ -101,8 +101,8 @@ exports.isAuthorized = (req, res, next) => {
             `${provider}`,
             token.refreshToken,
             (err, accessToken, refreshToken, params) => {
-              User.findById(req.user.id, (err, user) => {
-                user.tokens.some((tokenObject) => {
+              Doctor.findById(req.doctor.id, (err, doctor) => {
+                doctor.tokens.some((tokenObject) => {
                   if (tokenObject.kind === provider) {
                     tokenObject.accessToken = accessToken;
                     if (params.expires_in)
@@ -113,9 +113,9 @@ exports.isAuthorized = (req, res, next) => {
                   }
                   return false;
                 });
-                req.user = user;
-                user.markModified("tokens");
-                user.save((err) => {
+                req.doctor = doctor;
+                doctor.markModified("tokens");
+                doctor.save((err) => {
                   if (err) console.log(err);
                   next();
                 });
