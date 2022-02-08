@@ -1,4 +1,8 @@
+const path = require("path");
 const express = require("express");
+const passport = require("passport");
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const userController = require("../controllers/user");
 const userPassportConfig = require("../config/userPassport");
 // const questionnaireController = require("../controllers/questionnaire");
@@ -7,6 +11,30 @@ const userPassportConfig = require("../config/userPassport");
 // const scanController = require("../controllers/scan");
 
 const router = express.Router();
+
+router.use(
+  session({
+    resave: true,
+    saveUninitialized: true,
+    secret: process.env.SESSION_SECRET,
+    cookie: { maxAge: 1209600000 }, // two weeks in milliseconds
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+    }),
+    key: "user.sid",
+  })
+);
+router.use(passport.initialize());
+router.use(passport.session());
+router.use((req, res, next) => {
+  res.locals.user = req.user;
+  console.log("res.locals.user", res.locals.user);
+  next();
+});
+router.use(
+  "/",
+  express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
+);
 
 router.get("/", (req, res) => {
   res.send("index");

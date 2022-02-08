@@ -1,58 +1,66 @@
 const passport = require("passport");
 const refresh = require("passport-oauth2-refresh");
-const { Strategy: LocalStrategy } = require("passport-local");
+const LocalStrategy = require("passport-local");
 const moment = require("moment");
 
 const Doctor = require("../models/Doctor");
 
 passport.serializeUser((doctor, done) => {
+  console.log("serializeUser", doctor);
   done(null, doctor.id);
 });
 
-passport.deserializeUser((id, done) => {
-  Doctor.findById(id, (err, doctor) => {
-    done(err, doctor);
-  });
+passport.deserializeUser(async (id, done) => {
+  console.log("deserializeUser", id);
+  const doctor = await Doctor.findById(id);
+  console.log("deserializeUser", doctor);
+  done(null, doctor);
 });
 
 /**
  * Sign in using Email and Password.
  */
 passport.use(
-  new LocalStrategy({ userNameField: "email" }, (email, password, done) => {
-    Doctor.findOne({ email: email.toLowerCase() }, (err, doctor) => {
-      if (err) {
-        return done(err);
-      }
-      if (!doctor) {
-        return done(null, false, { msg: `Email ${email} not found.` });
-      }
-      if (!doctor.password) {
-        return done(null, false, {
-          msg: "Your account was registered using a sign-in provider. To enable password login, sign in using a provider, and then set a password under your doctor profile.",
-        });
-      }
-      doctor.comparePassword(password, (err, isMatch) => {
+  "doctor-local",
+  new LocalStrategy(
+    { usernameField: "email", passwordField: "password" },
+    (email, password, done) => {
+      console.log("LocalStrategy", email, password);
+      Doctor.findOne({ email: email.toLowerCase() }, (err, doctor) => {
+        console.log("doctor s", doctor);
         if (err) {
           return done(err);
         }
-        if (isMatch) {
-          return done(null, doctor);
+        if (!doctor) {
+          return done(null, false, { msg: `Email ${email} not found.` });
         }
-        return done(null, false, { msg: "Invalid email or password." });
+        if (!doctor.password) {
+          return done(null, false, {
+            msg: "Your account was registered using a sign-in provider. To enable password login, sign in using a provider, and then set a password under your doctor profile.",
+          });
+        }
+        doctor.comparePassword(password, (err, isMatch) => {
+          if (err) {
+            return done(err);
+          }
+          if (isMatch) {
+            return done(null, doctor);
+          }
+          return done(null, false, { msg: "Invalid email or password." });
+        });
       });
-    });
-  })
+    }
+  )
 );
 
 /**
  * OAuth Strategy Overview
  *
- * - Doctor is already logged in.
+ * - doctor is already logged in.
  *   - Check if there is an existing account with a provider id.
  *     - If there is, return an error message. (Account merging not supported)
  *     - Else link new OAuth account with currently logged-in doctor.
- * - Doctor is not logged in.
+ * - doctor is not logged in.
  *   - Check if it's a returning doctor.
  *     - If returning doctor, sign in and we are done.
  *     - Else check if there is an existing account with doctor's email.
@@ -67,7 +75,9 @@ exports.isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.redirect("/doctor/login");
+  return res.status(500).json({
+    message: "You are not logged in.",
+  });
 };
 
 /**

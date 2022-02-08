@@ -42,27 +42,28 @@ We will also give users an option to get a second opinion from a doctor within o
 4. Run development server using `yarn dev`.
 
 ## Endpoints
+
 1. POST /user/signup
    - Body
-      ```js
-      {
-        email: string,
-        password: string,
-        confirmPassword: string,
-        gender: M|F,
-        name: string,
-        location: string
-      }
-      ```
-    - Response: On success returns created user fields.
+     ```js
+     {
+       email: string,
+       password: string,
+       confirmPassword: string,
+       gender: M|F,
+       name: string,
+       location: string
+     }
+     ```
+   - Response: On success returns created user fields.
 2. POST /user/login
    - Body
-      ```js
-      {
-        email: string,
-        password: string
-      }
-      ```
+     ```js
+     {
+       email: string,
+       password: string
+     }
+     ```
    - Response: Set-Cookie field in header contains cookie used for session.
 3. GET /user/logout
    - Response: Status success on successfully logging out. Session cookie will now no longer work.
@@ -70,18 +71,19 @@ We will also give users an option to get a second opinion from a doctor within o
    - Response: Returns user profile (name, gender, location).
 5. POST /user/account/profile
    - Body
-      ```js
-      {
-        email: string,
-        name: string,
-        gender: string,
-        location: string
-      }
-      ```
+     ```js
+     {
+       email: string,
+       name: string,
+       gender: string,
+       location: string
+     }
+     ```
    - Response: Returns new user profile (name, gender, location).
 6. POST /user/account/password
 7. POST /user/account/delete
    - Response: Success message if user is successfully deleted.
+
 ## Acknowledgments
 
 Repo based off of [NodeJS Hackathon Starter](https://github.com/sahat/hackathon-starter).

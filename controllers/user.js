@@ -56,30 +56,34 @@ exports.postLogin = (req, res, next) => {
     gmail_remove_dots: false,
   });
 
-  const authenticate = passport.authenticate("local", (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      req.flash("errors", info.message);
-      return res.status(500).json({
-        status: "error",
-        message: "Validation errors",
-        errors: info.message,
-      });
-    }
-    req.logIn(user, (err) => {
-      console.log("log in", user, err);
+  const authenticate = passport.authenticate(
+    "user-local",
+    (err, user, info) => {
+      console.log("authenticate", err, user, info);
       if (err) {
         return next(err);
       }
-      req.flash("success", { msg: "Success! You are logged in." });
-      res.status(200).json({
-        status: "success",
-        message: "Success! You are logged in.",
+      if (!user) {
+        req.flash("errors", info.message);
+        return res.status(500).json({
+          status: "error",
+          message: "Validation errors",
+          errors: info,
+        });
+      }
+      req.logIn(user, (err) => {
+        console.log("log in", user, err);
+        if (err) {
+          return next(err);
+        }
+        req.flash("success", { msg: "Success! You are logged in." });
+        res.status(200).json({
+          status: "success",
+          message: "Success! You are logged in.",
+        });
       });
-    });
-  });
+    }
+  );
   authenticate(req, res, next);
 };
 
@@ -88,6 +92,7 @@ exports.postLogin = (req, res, next) => {
  * Log out.
  */
 exports.logout = (req, res) => {
+  console.log("req.session", req.session);
   req.logout();
   req.session.destroy((err) => {
     if (err)
