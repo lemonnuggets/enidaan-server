@@ -6,6 +6,8 @@
   - [Purpose](#purpose)
   - [Scope](#scope)
   - [Methodology](#methodology)
+  - [Instructions](#instructions)
+  - [Endpoints](#endpoints)
   - [Acknowledgments](#acknowledgments)
 
 ## Problem Statement
@@ -32,6 +34,54 @@ It’s also our intention to market ourselves as a platform where doctors can qu
 Searching for various medical datasets pertaining to lung diseases on sites such as Kaggle. Followed by applying various Machine learning and Deep learning models and doing hyperparameter tuning in order to maximize the metrics.
 We will also give users an option to get a second opinion from a doctor within our platform for a minimal fee. Users would be able to view the rating of various doctors so that they can make an informed decision.
 
+## Instructions
+
+1. Ensure that yarn is installed locally.
+2. Clone repo and cd into cloned folder.
+3. Install packages using `yarn` or `yarn install`.
+4. Run development server using `yarn dev`.
+
+## Endpoints
+1. POST /user/signup
+   - Body
+      ```js
+      {
+        email: string,
+        password: string,
+        confirmPassword: string,
+        gender: M|F,
+        name: string,
+        location: string
+      }
+      ```
+    - Response: On success returns created user fields.
+2. POST /user/login
+   - Body
+      ```js
+      {
+        email: string,
+        password: string
+      }
+      ```
+   - Response: Set-Cookie field in header contains cookie used for session.
+3. GET /user/logout
+   - Response: Status success on successfully logging out. Session cookie will now no longer work.
+4. GET /user/account
+   - Response: Returns user profile (name, gender, location).
+5. POST /user/account/profile
+   - Body
+      ```js
+      {
+        email: string,
+        name: string,
+        gender: string,
+        location: string
+      }
+      ```
+   - Response: Returns new user profile (name, gender, location).
+6. POST /user/account/password
+7. POST /user/account/delete
+   - Response: Success message if user is successfully deleted.
 ## Acknowledgments
 
 Repo based off of [NodeJS Hackathon Starter](https://github.com/sahat/hackathon-starter).

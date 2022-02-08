@@ -23,6 +23,20 @@ exports.getLogin = (req, res) => {
 exports.postLogin = (req, res, next) => {
   console.log("postLogin");
   const validationErrors = [];
+  if (typeof req.body.email !== "string")
+    validationErrors.push({ msg: "Please enter a valid email address." });
+  if (typeof req.body.password !== "string")
+    validationErrors.push({ msg: "Please enter a valid password." });
+
+  if (validationErrors.length) {
+    req.flash("errors", validationErrors);
+    return res.status(500).json({
+      status: "error",
+      message: "Validation error",
+      errors: validationErrors,
+    });
+  }
+
   if (!validator.isEmail(req.body.email))
     validationErrors.push({ msg: "Please enter a valid email address." });
   if (validator.isEmpty(req.body.password))
@@ -79,7 +93,10 @@ exports.logout = (req, res) => {
     if (err)
       console.log("Error : Failed to destroy the session during logout.", err);
     req.user = null;
-    res.redirect("/");
+    res.status(200).json({
+      status: "success",
+      message: "Successfully logged out.",
+    });
   });
 };
 
@@ -170,8 +187,9 @@ exports.postSignup = (req, res, next) => {
  * Profile page.
  */
 exports.getAccount = (req, res) => {
-  res.render("account/profile", {
-    title: "Account Management",
+  res.status(200).json({
+    status: "success",
+    user: req.user.profile,
   });
 };
 
@@ -181,6 +199,18 @@ exports.getAccount = (req, res) => {
  */
 exports.postUpdateProfile = (req, res, next) => {
   const validationErrors = [];
+  if (typeof req.body.email !== "string")
+    validationErrors.push({ msg: "Please enter a valid email address." });
+
+  if (validationErrors.length) {
+    req.flash("errors", validationErrors);
+    return res.status(500).json({
+      status: "error",
+      message: "Validation error",
+      errors: validationErrors,
+    });
+  }
+
   if (!validator.isEmail(req.body.email))
     validationErrors.push({ msg: "Please enter a valid email address." });
 
