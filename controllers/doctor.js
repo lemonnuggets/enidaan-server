@@ -8,7 +8,7 @@ const Doctor = require("../models/Doctor");
  * Login page.
  */
 exports.getLogin = (req, res) => {
-  if (req.user) {
+  if (req.doctor) {
     return res.redirect("/");
   }
   res.render("account/login", {
@@ -58,11 +58,11 @@ exports.postLogin = (req, res, next) => {
 
   const authenticate = passport.authenticate(
     "doctor-local",
-    (err, user, info) => {
+    (err, doctor, info) => {
       if (err) {
         return next(err);
       }
-      if (!user) {
+      if (!doctor) {
         req.flash("errors", info.message);
         return res.status(500).json({
           status: "error",
@@ -70,8 +70,8 @@ exports.postLogin = (req, res, next) => {
           errors: info.message,
         });
       }
-      req.logIn(user, (err) => {
-        console.log("log in", user, err);
+      req.logIn(doctor, (err) => {
+        console.log("log in", doctor, err);
         if (err) {
           return next(err);
         }
@@ -96,7 +96,7 @@ exports.logout = (req, res) => {
   req.session.destroy((err) => {
     if (err)
       console.log("Error : Failed to destroy the session during logout.", err);
-    req.user = null;
+    req.doctor = null;
     res.status(200).json({
       status: "success",
       message: "Successfully logged out.",
@@ -146,7 +146,7 @@ exports.postSignup = (req, res, next) => {
   req.body.email = validator.normalizeEmail(req.body.email, {
     gmail_remove_dots: false,
   });
-  const user = new Doctor({
+  const doctor = new Doctor({
     email: req.body.email,
     password: req.body.password,
     profile: {
@@ -156,11 +156,11 @@ exports.postSignup = (req, res, next) => {
     },
   });
 
-  Doctor.findOne({ email: req.body.email }, (err, existingUser) => {
+  Doctor.findOne({ email: req.body.email }, (err, existingDoctor) => {
     if (err) {
       return next(err);
     }
-    if (existingUser) {
+    if (existingDoctor) {
       req.flash("errors", {
         msg: "Account with that email address already exists.",
       });
@@ -169,11 +169,11 @@ exports.postSignup = (req, res, next) => {
         message: "Account with that email address already exists.",
       });
     }
-    user.save((err) => {
+    doctor.save((err) => {
       if (err) {
         return next(err);
       }
-      req.logIn(user, (err) => {
+      req.logIn(doctor, (err) => {
         if (err) {
           return next(err);
         }
@@ -193,7 +193,7 @@ exports.postSignup = (req, res, next) => {
 exports.getAccount = (req, res) => {
   res.status(200).json({
     status: "success",
-    user: req.user.profile,
+    doctor: req.doctor.profile,
   });
 };
 
@@ -230,16 +230,17 @@ exports.postUpdateProfile = (req, res, next) => {
     gmail_remove_dots: false,
   });
 
-  Doctor.findById(req.user.id, (err, user) => {
+  Doctor.findById(req.doctor.id, (err, doctor) => {
     if (err) {
       return next(err);
     }
-    if (user.email !== req.body.email) user.emailVerified = false;
-    user.email = req.body.email || "";
-    user.profile.name = req.body.name || "";
-    user.profile.location = req.body.location || "";
-    user.profile.gender = req.body.gender || "";
-    user.save((err) => {
+    if (doctor.email !== req.body.email) doctor.emailVerified = false;
+    doctor.email = req.body.email || doctor.email;
+    doctor.profile.name = req.body.name || doctor.profile.name;
+    doctor.profile.location = req.body.location || doctor.profile.location;
+    doctor.profile.gender = req.body.gender || doctor.profile.gender;
+    doctor.profile.bio = req.body.bio || doctor.profile.bio;
+    doctor.save((err) => {
       if (err) {
         if (err.code === 11000) {
           req.flash("errors", {
@@ -257,12 +258,13 @@ exports.postUpdateProfile = (req, res, next) => {
       res.status(200).json({
         status: "success",
         message: "Profile information has been updated.",
-        user: {
-          _id: user._id,
-          email: user.email,
-          name: user.profile.name,
-          location: user.profile.location,
-          gender: user.profile.gender,
+        doctor: {
+          _id: doctor._id,
+          email: doctor.email,
+          name: doctor.profile.name,
+          location: doctor.profile.location,
+          gender: doctor.profile.gender,
+          bio: doctor.profile.bio,
         },
       });
     });
@@ -291,12 +293,12 @@ exports.postUpdatePassword = (req, res, next) => {
     });
   }
 
-  Doctor.findById(req.user.id, (err, user) => {
+  Doctor.findById(req.doctor.id, (err, doctor) => {
     if (err) {
       return next(err);
     }
-    user.password = req.body.password;
-    user.save((err) => {
+    doctor.password = req.body.password;
+    doctor.save((err) => {
       if (err) {
         return next(err);
       }
@@ -314,7 +316,7 @@ exports.postUpdatePassword = (req, res, next) => {
  * Delete doctor account.
  */
 exports.postDeleteAccount = (req, res, next) => {
-  Doctor.deleteOne({ _id: req.user.id }, (err) => {
+  Doctor.deleteOne({ _id: req.doctor.id }, (err) => {
     if (err) {
       return next(err);
     }
@@ -346,11 +348,11 @@ exports.getReset = (req, res, next) => {
   Doctor.findOne({ passwordResetToken: req.params.token })
     .where("passwordResetExpires")
     .gt(Date.now())
-    .exec((err, user) => {
+    .exec((err, doctor) => {
       if (err) {
         return next(err);
       }
-      if (!user) {
+      if (!doctor) {
         req.flash("errors", {
           msg: "Password reset token is invalid or has expired.",
         });
@@ -367,7 +369,7 @@ exports.getReset = (req, res, next) => {
  * Verify email address
  */
 exports.getVerifyEmailToken = (req, res, next) => {
-  if (req.user.emailVerified) {
+  if (req.doctor.emailVerified) {
     req.flash("info", { msg: "The email address has been verified." });
     return res.redirect("/account");
   }
@@ -380,18 +382,18 @@ exports.getVerifyEmailToken = (req, res, next) => {
     return res.redirect("/account");
   }
 
-  if (req.params.token === req.user.emailVerificationToken) {
-    Doctor.findOne({ email: req.user.email })
-      .then((user) => {
-        if (!user) {
+  if (req.params.token === req.doctor.emailVerificationToken) {
+    Doctor.findOne({ email: req.doctor.email })
+      .then((doctor) => {
+        if (!doctor) {
           req.flash("errors", {
             msg: "There was an error in loading your profile.",
           });
           return res.redirect("back");
         }
-        user.emailVerificationToken = "";
-        user.emailVerified = true;
-        user = user.save();
+        doctor.emailVerificationToken = "";
+        doctor.emailVerified = true;
+        doctor = doctor.save();
         req.flash("info", {
           msg: "Thank you for verifying your email address.",
         });

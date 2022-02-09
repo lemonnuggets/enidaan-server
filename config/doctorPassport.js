@@ -5,17 +5,17 @@ const moment = require("moment");
 
 const Doctor = require("../models/Doctor");
 
-passport.serializeUser((doctor, done) => {
-  console.log("serializeUser", doctor);
-  done(null, doctor.id);
-});
+// passport.serializeUser((doctor, done) => {
+//   console.log("serializeDoctor", doctor);
+//   done(null, doctor.id);
+// });
 
-passport.deserializeUser(async (id, done) => {
-  console.log("deserializeUser", id);
-  const doctor = await Doctor.findById(id);
-  console.log("deserializeUser", doctor);
-  done(null, doctor);
-});
+// passport.deserializeUser(async (id, done) => {
+//   console.log("deserializeDoctor id", id);
+//   const doctor = await Doctor.findById(id);
+//   console.log("deserializeDoctor", doctor);
+//   done(null, doctor);
+// });
 
 /**
  * Sign in using Email and Password.
@@ -72,6 +72,7 @@ passport.use(
  * Login Required middleware.
  */
 exports.isAuthenticated = (req, res, next) => {
+  console.log("isAuthenticated", req.isAuthenticated());
   if (req.isAuthenticated()) {
     return next();
   }
@@ -143,3 +144,5 @@ exports.isAuthorized = (req, res, next) => {
     res.redirect(`/auth/${provider}`);
   }
 };
+
+exports.doctorPassport = passport;

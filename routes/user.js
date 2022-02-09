@@ -17,7 +17,7 @@ router.use(
     resave: true,
     saveUninitialized: true,
     secret: process.env.SESSION_SECRET,
-    cookie: { maxAge: 1209600000 }, // two weeks in milliseconds
+    cookie: { maxAge: 1209600000, secure: false, path: "/user" }, // two weeks in milliseconds
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
     }),

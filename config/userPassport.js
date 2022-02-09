@@ -4,6 +4,7 @@ const LocalStrategy = require("passport-local");
 const moment = require("moment");
 
 const User = require("../models/User");
+const Doctor = require("../models/Doctor");
 
 passport.serializeUser((user, done) => {
   console.log("serializeUser", user);
@@ -11,9 +12,19 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id);
-  console.log("deserializeUser", user);
-  done(null, user);
+  try {
+    const doctor = await Doctor.findById(id);
+    if (doctor) {
+      console.log("deserializeDoctor", doctor);
+      return done(null, doctor);
+    }
+    const user = await User.findById(id);
+    console.log("deserializeUser", user);
+    done(null, user);
+  } catch (error) {
+    console.log("deserializeUser error", error);
+    done(error);
+  }
 });
 
 /**

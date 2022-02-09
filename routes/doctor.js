@@ -1,10 +1,9 @@
 const path = require("path");
 const express = require("express");
-const passport = require("passport");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const doctorController = require("../controllers/doctor");
-const doctorPassportConfig = require("../config/doctorPassport");
+const { doctorPassport, isAuthenticated } = require("../config/doctorPassport");
 
 const router = express.Router();
 
@@ -13,17 +12,16 @@ router.use(
     resave: true,
     saveUninitialized: true,
     secret: process.env.SESSION_SECRET,
-    cookie: { maxAge: 1209600000 }, // two weeks in milliseconds
+    cookie: { maxAge: 1209600000, secure: false, path: "/doctor" }, // two weeks in milliseconds
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
     }),
     key: "doctor.sid",
   })
 );
-router.use(passport.initialize({ userProperty: "doctor" }));
-router.use(passport.session());
+router.use(doctorPassport.initialize({ userProperty: "doctor" }));
+router.use(doctorPassport.session());
 router.use((req, res, next) => {
-  console.log("req.doctor", req.doctor);
   res.locals.doctor = req.doctor;
   console.log("res.locals.doctor", res.locals.doctor);
   next();
@@ -39,24 +37,20 @@ router.get("/", (req, res) => {
 router.post("/signup", doctorController.postSignup);
 router.post("/login", doctorController.postLogin);
 router.get("/logout", doctorController.logout);
-router.get(
-  "/account",
-  doctorPassportConfig.isAuthenticated,
-  doctorController.getAccount
-);
+router.get("/account", isAuthenticated, doctorController.getAccount);
 router.post(
   "/account/profile",
-  doctorPassportConfig.isAuthenticated,
+  isAuthenticated,
   doctorController.postUpdateProfile
 );
 router.post(
   "/account/password",
-  doctorPassportConfig.isAuthenticated,
+  isAuthenticated,
   doctorController.postUpdatePassword
 );
 router.post(
   "/account/delete",
-  doctorPassportConfig.isAuthenticated,
+  isAuthenticated,
   doctorController.postDeleteAccount
 );
 
